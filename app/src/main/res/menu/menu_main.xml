@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="manager.download.app.rubycell.com.downloadmanager.Activities.MainmenuActivity.MainActivity2">
+
+    <item android:id="@+id/action_restore"
+          android:icon="@drawable/restore"
+          android:title="restore"
+          app:showAsAction="ifRoom" />
+
+</menu>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.test.googledrive.Setting.PreferenceCategory
+        android:id="@+id/preferenceCategory"
+        android:key="interface_setting"
+        android:title="Interface">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="show_file"
+            android:summary="Show file type"
+            android:title="Show file" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="change_display"
+            android:singleLine="false"
+            android:summary="change display"
+            android:title="Change display" />
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="auto_hide"
+            android:singleLine="false"
+            android:summary="hide navigation bar"
+            android:title="Hide navigation bar" />
+    </com.test.googledrive.Setting.PreferenceCategory>
+</PreferenceScreen>
