@@ -40,7 +40,7 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 
 /**
- * Created by duc_2 on 4/15/2016.
+ * Created by ANDT on 10/6/2016.
  */
 public class AppCompatPreferenceActivity extends PreferenceActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
