@@ -63,7 +63,7 @@ public class AppCompatPreferenceActivity extends PreferenceActivity implements G
                     .build();
         }
         progressDialog = new ProgressDialog(this);
-        progressDialog.setMessage("Đang restore data !");
+        progressDialog.setMessage("data recovery !");
     }
 
     @Override
@@ -207,7 +207,7 @@ public class AppCompatPreferenceActivity extends PreferenceActivity implements G
                             DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, result.getMetadataBuffer().get(0).getDriveId());
                             file.open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(contentsOpenedCallback);
                         } else {
-                            Toast.makeText(AppCompatPreferenceActivity.this,"khong co file restore",Toast.LENGTH_LONG).show();
+                            Toast.makeText(AppCompatPreferenceActivity.this,"Bạn chưa backup bao giờ. Thì restore bằng gì ???",Toast.LENGTH_LONG).show();
                         }
                     } else {
                         Log.d(TAG,result.getStatus()+"");
@@ -231,7 +231,7 @@ public class AppCompatPreferenceActivity extends PreferenceActivity implements G
                         String dataDecrypt = AESCrypt.decrypt(GlobalUtils.password,dataRestore);
                         BaseApp.getInstance().setDataSetting(dataDecrypt);
                         GlobalUtils.getInstance(AppCompatPreferenceActivity.this).restore(dataRestore);
-                        Toast.makeText(AppCompatPreferenceActivity.this,"da restore, data sau khi giai ma la : "+ dataDecrypt,Toast.LENGTH_LONG).show();
+                        Toast.makeText(AppCompatPreferenceActivity.this,"Đã restore, data sau khi giải mã là : "+ dataDecrypt,Toast.LENGTH_LONG).show();
                         contents.discard(mGoogleApiClient);
                         reload(AppCompatPreferenceActivity.this);
                     } catch (IOException e) {
