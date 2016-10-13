@@ -49,6 +49,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 setBackup(true);
             }
             else if(bundle.containsKey("backupSchedule")) {
+                Log.d(LOG_TAG,"backupSchedule == true");
                 setBackupSchedule(true);
                 backup.setText("BACKUP (Last backup "+currentCal.get(Calendar.HOUR_OF_DAY)+":"+currentCal.get(Calendar.MINUTE)+":"+currentCal.get(Calendar.SECOND));
                 backup.setEnabled(false);
@@ -113,8 +114,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         long intendedTime = firingCal.getTimeInMillis();
         long currentTime = currentCal.getTimeInMillis();
 
-        Intent intent = new Intent(MainActivity.this, MainActivity.class);
-        intent.putExtra("backupSchedule",true);
+        Intent intent = new Intent(getApplicationContext(), BackupService.class);
         PendingIntent pintent = PendingIntent.getService(MainActivity.this, 0, intent, 0);
         AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         if(intendedTime >= currentTime){

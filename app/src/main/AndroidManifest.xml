@@ -32,10 +32,6 @@
         <activity android:name=".Setting.SettingActivity" />
 
         <service
-            android:name=".Services.ScheduleBackupService"
-            android:enabled="true"
-            android:exported="true" />
-        <service
             android:name=".Services.BackupService"
             android:enabled="true"
             android:exported="true" />

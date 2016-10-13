@@ -110,6 +110,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                 searchFile();
             }
             else if(backupSetting) {
+                Log.d(TAG,"vao cho backupsetting nay roi");
                 backupData();
             }
         }
@@ -155,12 +156,16 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     public void backupData() {
         try {
             if(isBackup()) {
+                Log.d(TAG,"backup bang true");
                 backup = false;
                 Query query = new Query.Builder()
                         .addFilter(Filters.eq(SearchableField.TITLE, StringUtils.KEY_BACKUP))
                         .build();
                 Drive.DriveApi.query(mGoogleApiClient, query)
                         .setResultCallback(metadataCallbackBackup);
+            }
+            else {
+                Log.d(TAG,"backup bang false");
             }
         }
         catch (Exception e) {
