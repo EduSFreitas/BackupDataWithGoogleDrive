@@ -163,7 +163,6 @@ public class AppCompatPreferenceActivity extends PreferenceActivity implements G
                 mGoogleApiClient.connect();
             }
         }
-        mGoogleApiClient.connect();
     }
 
     @Override

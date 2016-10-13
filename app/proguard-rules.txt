@@ -1,0 +1,141 @@
+# Keep line number and source file name
+-keepattributes SourceFile,LineNumberTable
+
+
+# For enumeration classes, see http://proguard.sourceforge.net/manual/examples.html#enumerations
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keepattributes *Annotation*
+
+
+
+-optimizationpasses 5
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+-dontpreverify
+-verbose
+-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+
+-keep public class * extends android.app.Activity
+-keep public class * extends android.app.Application
+-keep public class * extends android.app.Service
+-keep public class * extends android.content.BroadcastReceiver
+-keep public class * extends android.content.ContentProvider
+-keep public class * extends android.app.backup.BackupAgentHelper
+-keep public class * extends android.preference.Preference
+-keep public class com.android.vending.licensing.ILicensingService
+-keep public class acr.browser.lightning.reading.*
+-keep class org.lucasr.twowayview.** { *; }
+
+-keepattributes *Annotation*
+-keepclassmembers class ** {
+    @com.squareup.otto.Subscribe public *;
+    @com.squareup.otto.Produce public *;
+}
+
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+    public static *** w(...);
+    public static *** i(...);
+}
+
+-keep class butterknife.** { *; }
+-dontwarn butterknife.internal.**
+-keep class **$$ViewBinder { *; }
+
+-keepclasseswithmembernames class * {
+    @butterknife.* <fields>;
+}
+
+-keepclasseswithmembernames class * {
+    @butterknife.* <methods>;
+}
+
+# this will fix a force close in ReadingActivity
+-keep public class org.jsoup.** {
+    public *;
+}
+
+# Without this rule, openFileChooser does not get called on KitKat
+-keep class acr.browser.lightning.view.LightningView$LightningChromeClient {
+    void openFileChooser(android.webkit.ValueCallback);
+    void openFileChooser(android.webkit.ValueCallback, java.lang.String);
+    void openFileChooser(android.webkit.ValueCallback, java.lang.String, java.lang.String);
+}
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers class * extends android.app.Activity {
+   public void *(android.view.View);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+# The support library contains references to newer platform versions.
+# Don't warn about those in case this app is linking against an older
+# platform version.  We know about them, and they are safe.
+-dontwarn android.support.**
+
+# The I2P Java API bundled inside the I2P Android client library contains
+# references to javax.naming classes that Android doesn't have. But those
+# classes are never used on Android, and it is safe to ignore the warnings.
+-dontwarn net.i2p.crypto.CertUtil
+-dontwarn org.apache.http.conn.ssl.DefaultHostnameVerifier
+
+-dontwarn org.apache.http.HttpHost
+
+-dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
+
+# LeakCanary
+-keep class org.eclipse.mat.** { *; }
+-keep class com.squareup.leakcanary.** { *; }
+# Marshmallow removed Notification.setLatestEventInfo()
+-dontwarn android.app.Notification
+
+-keep class manager.download.app.rubycell.com.downloadmanager.**{*;}
+-dontwarn manager.download.app.rubycell.com.downloadmanager.**
+#-keep class oauth.signpost.commonshttp.**{*;}
+#-keep class oauth.signpost.basic.**{*;}
+-keep class oauth.signpost.**{*;}
+-dontwarn oauth.signpost.**
+
+
+-keep class org.apache.http.** { *; }
+-dontwarn org.apache.http.**
+
+-keep class com.github.amlcurran.showcaseview.** { *; }
+#-keep class android.net.http.** { *; }
+#-dontwarn android.net.http.**
+-keepattributes Signature
+
+# Gson specific classes
+-keep class sun.misc.Unsafe { *; }
+#-keep class com.google.gson.stream.** { *; }
+
+# Application classes that will be serialized/deserialized over Gson
+-keep class com.google.gson.examples.android.model.** { *; }
+
+-keep class android.support.v7.widget.** { *; }
+
+-dontwarn org.apache.**

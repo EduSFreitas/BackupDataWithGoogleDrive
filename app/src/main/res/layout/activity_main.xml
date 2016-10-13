@@ -22,4 +22,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Go To Setting" />
+
+    <Button
+        android:id="@+id/scheduleBackup"
+        android:layout_below="@+id/setting"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Schedule Backup" />
+
+    <Button
+        android:id="@+id/backup"
+        android:layout_below="@+id/scheduleBackup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Backup" />
+
 </RelativeLayout>

@@ -29,6 +29,7 @@ import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
 import com.test.googledrive.Config.AESCrypt;
 import com.test.googledrive.Config.BaseApp;
+import com.test.googledrive.Config.StringUtils;
 import com.test.googledrive.Setting.SettingManager;
 
 import org.json.JSONException;
@@ -58,7 +59,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     private boolean changeAccount = false;
     private SettingManager settingManager;
     private boolean backup = false;
-    private static final String KEY_BACKUP = "SettingADA";
+    private boolean backupSetting = false;
     private static final String MINE_TYPE = "text/plain";
 
     @Override
@@ -102,15 +103,21 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
             mGoogleApiClient.clearDefaultAccountAndReconnect();
         } else {
             Toast.makeText(getApplicationContext(), "Đã kết nối !", Toast.LENGTH_LONG).show();
-            if (isBackup() || isRestore()) {
+//            if (isBackup() || isRestore()) {
+//                searchFile();
+//            }
+            if(isRestore()) {
                 searchFile();
+            }
+            else if(backupSetting) {
+                backupData();
             }
         }
     }
 
     private void searchFile() {
         Query query = new Query.Builder()
-                .addFilter(Filters.eq(SearchableField.TITLE, KEY_BACKUP))
+                .addFilter(Filters.eq(SearchableField.TITLE, StringUtils.KEY_BACKUP))
                 .build();
         Drive.DriveApi.query(mGoogleApiClient, query)
                 .setResultCallback(metadataCallback);
@@ -127,13 +134,11 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                         if (result.getMetadataBuffer().getCount() > 0) {
                             Log.d(TAG, "co du lieu nhe");
                             DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, result.getMetadataBuffer().get(0).getDriveId());
-                            if (isBackup()) {
-                                backup = false;
-                                backupData(file);
-                            } else {
-                                if (isRestore()) {
-                                    file.open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(contentsOpenedCallback);
-                                }
+                            if (isRestore()) {
+                                file.open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(contentsOpenedCallback);
+                            }
+                            else {
+                                return;
                             }
                         } else {
                             Log.d(TAG, "chua co du lieu nhe");
@@ -147,42 +152,86 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                 }
             };
 
-    private void backupData(DriveFile file) {
-        file.open(mGoogleApiClient, DriveFile.MODE_WRITE_ONLY, null).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
-            @Override
-            public void onResult(@NonNull DriveApi.DriveContentsResult result) {
-                if (!result.getStatus().isSuccess()) {
-                    return;
-                }
-                DriveContents driveContents = result.getDriveContents();
-                ParcelFileDescriptor parcelFileDescriptor = driveContents.getParcelFileDescriptor();
-                FileInputStream fileInputStream = new FileInputStream(parcelFileDescriptor
-                        .getFileDescriptor());
-                try {
-                    JSONObject json = setPreferenceToJsonObject();
-                    String jsonString = json.toString();
-                    String data = GlobalUtils.getInstance(BaseActivity.this).encryptData(jsonString);
-                    fileInputStream.read(new byte[fileInputStream.available()]);
-                    FileOutputStream fileOutputStream = new FileOutputStream(parcelFileDescriptor
-                            .getFileDescriptor());
-                    Writer writer = new OutputStreamWriter(fileOutputStream);
-                    writer.write(data);
-                    writer.close();
-                    BaseApp.getInstance().setDataSetting(jsonString);
-                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle(KEY_BACKUP)
-                            .setMimeType(MINE_TYPE).build();
-                    driveContents.commit(mGoogleApiClient, changeSet).setResultCallback(new ResultCallback<Status>() {
-                        @Override
-                        public void onResult(@NonNull Status status) {
-                            Toast.makeText(getApplicationContext(),"da backup !",Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+    public void backupData() {
+        try {
+            if(isBackup()) {
+                backup = false;
+                Query query = new Query.Builder()
+                        .addFilter(Filters.eq(SearchableField.TITLE, StringUtils.KEY_BACKUP))
+                        .build();
+                Drive.DriveApi.query(mGoogleApiClient, query)
+                        .setResultCallback(metadataCallbackBackup);
             }
-        });
+        }
+        catch (Exception e) {
+            Log.e(TAG,"errorMsg "+e.getMessage());
+        }
+    }
+
+    final private ResultCallback<DriveApi.MetadataBufferResult> metadataCallbackBackup = new
+            ResultCallback<DriveApi.MetadataBufferResult>() {
+                @Override
+                public void onResult(DriveApi.MetadataBufferResult result) {
+                    if (!result.getStatus().isSuccess()) {
+                        return;
+                    }
+                    if (result.getMetadataBuffer() != null) {
+                        if (result.getMetadataBuffer().getCount() > 0) {
+                            DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, result.getMetadataBuffer().get(0).getDriveId());
+                            backupData(file);
+                        } else {
+                            if(isBackup()) {
+                                createFile();
+                            }
+                        }
+                    } else {
+                        Log.d(TAG,result.getStatus()+"");
+                    }
+                }
+            };
+
+    private void backupData(DriveFile file) {
+        if(file != null) {
+            file.open(mGoogleApiClient, DriveFile.MODE_WRITE_ONLY, null).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
+                @Override
+                public void onResult(@NonNull DriveApi.DriveContentsResult result) {
+                    if (!result.getStatus().isSuccess()) {
+                        return;
+                    }
+                    DriveContents driveContents = result.getDriveContents();
+                    ParcelFileDescriptor parcelFileDescriptor = driveContents.getParcelFileDescriptor();
+                    FileInputStream fileInputStream = new FileInputStream(parcelFileDescriptor
+                            .getFileDescriptor());
+                    try {
+                        JSONObject json = setPreferenceToJsonObject();
+                        String jsonString = json.toString();
+                        String data = GlobalUtils.getInstance(BaseActivity.this).encryptData(jsonString);
+                        fileInputStream.read(new byte[fileInputStream.available()]);
+                        FileOutputStream fileOutputStream = new FileOutputStream(parcelFileDescriptor
+                                .getFileDescriptor());
+                        Writer writer = new OutputStreamWriter(fileOutputStream);
+                        writer.write(data);
+                        writer.close();
+                        BaseApp.getInstance().setDataSetting(jsonString);
+                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                                .setTitle(StringUtils.KEY_BACKUP)
+                                .setMimeType(MINE_TYPE).build();
+                        driveContents.commit(mGoogleApiClient, changeSet).setResultCallback(new ResultCallback<Status>() {
+                            @Override
+                            public void onResult(@NonNull Status status) {
+                                Toast.makeText(getApplicationContext(),"da backup !",Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
+        else {
+            Log.d("vaoday","file == null");
+            return;
+        }
     }
 
     ResultCallback<DriveApi.DriveContentsResult> contentsOpenedCallback =
@@ -206,10 +255,17 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                 }
             };
 
-    private boolean isBackup() {
-        if (checkRestoreData() && backup) {
+    public boolean isBackup() {
+//        if (checkRestoreData() && backup) {
+//            return true;
+//        } else {
+//            return false;
+//        }
+        String data = GlobalUtils.getInstance(this).setPreferenceToJsonObject().toString();
+        if(!data.equalsIgnoreCase(BaseApp.getInstance().getDataSetting())) {
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -288,7 +344,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                 }
                 BaseApp.getInstance().setDataSetting(json.toString());
                 MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                        .setTitle(KEY_BACKUP)
+                        .setTitle(StringUtils.KEY_BACKUP)
                         .setMimeType(MINE_TYPE)
                         .setStarred(true).build();
                 // create a file in root folder
@@ -373,6 +429,10 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
         backup = isBackup;
     }
 
+    public void setBackupSchedule(boolean isBackup) {
+        backupSetting = isBackup;
+    }
+
     public void logInGoogle(Button login) {
         String text = login.getText().toString();
         if (text.equalsIgnoreCase("login")) {
@@ -383,4 +443,6 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
         }
         mGoogleApiClient.connect();
     }
+
+
 }
