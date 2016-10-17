@@ -2,8 +2,10 @@ package com.test.googledrive;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +39,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     TimeDialog timeDialog;
     String LOG_TAG = "ThuNghiem";
     Calendar currentCal = Calendar.getInstance();
+    BroadcastBackup broadcastBackup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         bundle = getIntent().getExtras();
+        registerBroadcast();
         if (bundle != null) {
             if(bundle.containsKey("backup")) {
                 setBackup(true);
@@ -52,7 +56,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 Log.d(LOG_TAG,"backupSchedule == true");
                 setBackupSchedule(true);
                 backup.setText("BACKUP (Last backup "+currentCal.get(Calendar.HOUR_OF_DAY)+":"+currentCal.get(Calendar.MINUTE)+":"+currentCal.get(Calendar.SECOND));
-                backup.setEnabled(false);
+//                backup.setEnabled(false);
             }
         }
         timeDialog = new TimeDialog(this);
@@ -61,12 +65,13 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         if (BaseApp.getInstance().getLogin()) {
             login.setText("Change Account");
         }
+    }
 
-        if (isBackup()) {
-            backup.setEnabled(true);
-        } else {
-            backup.setEnabled(false);
-        }
+    private void registerBroadcast() {
+        broadcastBackup = new BroadcastBackup();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("BACKUP");
+        this.registerReceiver(broadcastBackup,filter);
     }
 
     private void setOnClick() {
@@ -91,7 +96,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
             case R.id.backup:
                 backupData();
                 backup.setText("BACKUP (Last backup "+currentCal.get(Calendar.HOUR_OF_DAY)+":"+currentCal.get(Calendar.MINUTE)+":"+currentCal.get(Calendar.SECOND));
-                backup.setEnabled(false);
                 break;
         }
     }
@@ -126,4 +130,33 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        BaseApp.getInstance().activityResumed();
+        Log.d(LOG_TAG,"isBackup "+isBackup());
+//        if (isBackup()) {
+//            backup.setEnabled(true);
+//        } else {
+//            backup.setEnabled(false);
+//        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        BaseApp.getInstance().activityDestroyed();
+        this.unregisterReceiver(broadcastBackup);
+    }
+
+    private class BroadcastBackup extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent != null && intent.getAction().equalsIgnoreCase("BACKUP")) {
+                backupData();
+                backup.setText("BACKUP (Last backup "+currentCal.get(Calendar.HOUR_OF_DAY)+":"+currentCal.get(Calendar.MINUTE)+":"+currentCal.get(Calendar.SECOND));
+//                backup.setEnabled(false);
+            }
+        }
+    }
 }

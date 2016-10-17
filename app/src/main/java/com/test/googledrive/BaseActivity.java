@@ -65,6 +65,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        changeAccount = false;
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Drive.API)
@@ -103,9 +104,6 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
             mGoogleApiClient.clearDefaultAccountAndReconnect();
         } else {
             Toast.makeText(getApplicationContext(), "Đã kết nối !", Toast.LENGTH_LONG).show();
-//            if (isBackup() || isRestore()) {
-//                searchFile();
-//            }
             if(isRestore()) {
                 searchFile();
             }
@@ -136,6 +134,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                             Log.d(TAG, "co du lieu nhe");
                             DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, result.getMetadataBuffer().get(0).getDriveId());
                             if (isRestore()) {
+                                changeAccount = false;
                                 file.open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(contentsOpenedCallback);
                             }
                             else {
@@ -276,7 +275,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     }
 
     private boolean isRestore() {
-        if (changeAccount || BaseApp.getInstance().getFirstUseApp() == 0) {
+        if (changeAccount) {
             return true;
         } else {
             return false;
@@ -441,6 +440,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     public void logInGoogle(Button login) {
         String text = login.getText().toString();
         if (text.equalsIgnoreCase("login")) {
+            changeAccount = true;
             login.setText("Change Account");
         } else {
             mGoogleApiClient.disconnect();

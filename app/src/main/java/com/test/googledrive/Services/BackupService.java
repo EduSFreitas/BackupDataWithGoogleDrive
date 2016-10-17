@@ -66,11 +66,17 @@ public class BackupService extends Service {
     }
 
     private void showActivity() {
-        Intent trIntent = new Intent("android.intent.action.MAIN");
-        trIntent.setClass(this, com.test.googledrive.MainActivity.class);
-        trIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        trIntent.putExtra("backupSchedule",true);
-        this.startActivity(trIntent);
+        if(BaseApp.getInstance().isActivityVisible()) {
+            Intent intent = new Intent("BACKUP");
+            this.sendBroadcast(intent);
+        }
+        else {
+            Intent trIntent = new Intent("android.intent.action.MAIN");
+            trIntent.setClass(this, com.test.googledrive.MainActivity.class);
+            trIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            trIntent.putExtra("backupSchedule",true);
+            this.startActivity(trIntent);
+        }
         this.stopSelf();
     }
 }

@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 public class BaseApp extends Application {
 
     private static BaseApp instance;
+    private static boolean activityVisible;
 
     @Override
     public void onCreate() {
@@ -62,6 +63,18 @@ public class BaseApp extends Application {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         int data = sharedPreferences.getInt("first_use_app", 0);
         return data;
+    }
+
+    public boolean isActivityVisible() {
+        return activityVisible;
+    }
+
+    public void activityResumed() {
+        activityVisible = true;
+    }
+
+    public void activityDestroyed() {
+        activityVisible = false;
     }
 
 }
