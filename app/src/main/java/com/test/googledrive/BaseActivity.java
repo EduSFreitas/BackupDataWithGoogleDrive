@@ -52,7 +52,7 @@ import java.util.Map;
 public abstract class BaseActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
-    private static final String TAG = "BaseActivity";
+    public static final String TAG = "BaseActivity";
     private static final int REQUEST_CODE_RESOLUTION = 1;
     private GoogleApiClient mGoogleApiClient;
     private boolean showDialogLogin = false;
@@ -90,18 +90,22 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     @Override
     protected void onStop() {
         super.onStop();
+        Log.d(TAG, "onStop: vao day");
+        changeAccount = false;
         if (mGoogleApiClient != null) {
             mGoogleApiClient.disconnect();
         }
         super.onPause();
     }
 
+
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         BaseApp.getInstance().setLogin(true);
+        Log.d(TAG,"changeAccount == "+changeAccount);
         if (showDialogLogin) {
             changeAccount = true;
-            Log.d(TAG,"Thay account");
             showDialogLogin = false;
             mGoogleApiClient.clearDefaultAccountAndReconnect();
         } else {
@@ -144,6 +148,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                             }
                         } else {
                             Log.d(TAG, "chua co du lieu nhe");
+                            BaseApp.getInstance().setFirstUseApp(1);
                             if(isBackup()) {
                                 createFile();
                             }
@@ -277,7 +282,8 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     }
 
     private boolean isRestore() {
-        if (changeAccount) {
+        Log.d(TAG, "isRestore: changeAccount "+changeAccount+ " "+BaseApp.getInstance().getFirstUseApp());
+        if (changeAccount || BaseApp.getInstance().getFirstUseApp() == 0) {
             return true;
         } else {
             return false;
@@ -453,5 +459,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
         mGoogleApiClient.connect();
     }
 
-
+    public void setChangeAccount(boolean changeAccount) {
+        this.changeAccount = changeAccount;
+    }
 }

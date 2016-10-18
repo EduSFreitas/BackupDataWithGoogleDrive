@@ -37,7 +37,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     SettingManager settingManager;
     Bundle bundle;
     TimeDialog timeDialog;
-    String LOG_TAG = "ThuNghiem";
     Calendar currentCal = Calendar.getInstance();
     BroadcastBackup broadcastBackup;
 
@@ -53,7 +52,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
                 setBackup(true);
             }
             else if(bundle.containsKey("backupSchedule")) {
-                Log.d(LOG_TAG,"backupSchedule == true");
+                Log.d(TAG,"backupSchedule == true");
                 setBackupSchedule(true);
                 backup.setText("BACKUP (Last backup "+currentCal.get(Calendar.HOUR_OF_DAY)+":"+currentCal.get(Calendar.MINUTE)+":"+currentCal.get(Calendar.SECOND));
 //                backup.setEnabled(false);
@@ -102,7 +101,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
 
     @Override
     public void onTimeSet(RadialPickerLayout view, int hourOfDay, int minute, int second) {
-        Log.d(LOG_TAG, "bat dau " + hourOfDay + " gio " + minute + " phut " + second + " giay");
+        Log.d(TAG, "bat dau " + hourOfDay + " gio " + minute + " phut " + second + " giay");
         backupSetting(hourOfDay,minute,second);
     }
 
@@ -113,7 +112,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
         firingCal.set(Calendar.MINUTE, minutes);
         firingCal.set(Calendar.SECOND, seconds);
 
-        Log.d(LOG_TAG,"gio cua ngay "+currentCal.get(Calendar.HOUR_OF_DAY)+" gio "+currentCal.get(Calendar.HOUR)+" ngay trong thang "+currentCal.get(Calendar.DAY_OF_MONTH));
+        Log.d(TAG,"gio cua ngay "+currentCal.get(Calendar.HOUR_OF_DAY)+" gio "+currentCal.get(Calendar.HOUR)+" ngay trong thang "+currentCal.get(Calendar.DAY_OF_MONTH));
 
         long intendedTime = firingCal.getTimeInMillis();
         long currentTime = currentCal.getTimeInMillis();
@@ -134,7 +133,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     protected void onResume() {
         super.onResume();
         BaseApp.getInstance().activityResumed();
-        Log.d(LOG_TAG,"isBackup "+isBackup());
+        Log.d(TAG,"isBackup "+isBackup());
+        Log.d(TAG, "onResume: vao day");
 //        if (isBackup()) {
 //            backup.setEnabled(true);
 //        } else {
@@ -145,6 +145,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener, 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy: vao day");
+        setChangeAccount(false);
         BaseApp.getInstance().activityDestroyed();
         this.unregisterReceiver(broadcastBackup);
     }
