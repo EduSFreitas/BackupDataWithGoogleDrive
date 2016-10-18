@@ -361,7 +361,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                         .setStarred(true).build();
                 // getAppFolder để cho vào thư mục ẩn, để app mình dùng được, người dùng ko thấy và app khác ko truy cập được
                 // khác với getRootFolder
-                Drive.DriveApi.getAppFolder(mGoogleApiClient)
+                Drive.DriveApi.getRootFolder(mGoogleApiClient)
                         .createFile(mGoogleApiClient, changeSet, driveContents)
                         .setResultCallback(fileCallback);
             }
