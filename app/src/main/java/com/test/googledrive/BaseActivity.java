@@ -71,6 +71,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Drive.API)
                     .addScope(Drive.SCOPE_FILE)
+                    .addScope(Drive.SCOPE_APPFOLDER)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .build();
@@ -367,6 +368,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                 public void onResult(DriveFolder.DriveFileResult result) {
                     if (result.getStatus().isSuccess()) {
                         Toast.makeText(getApplicationContext(), "Đã Backup rồi nhé !", Toast.LENGTH_LONG).show();
+
                     }
                     return;
                 }
