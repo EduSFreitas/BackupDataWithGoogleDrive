@@ -448,15 +448,18 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     }
 
     public void logInGoogle(Button login) {
-        String text = login.getText().toString();
-        if (text.equalsIgnoreCase("login")) {
+        if (BaseApp.getInstance().getFirstUseApp() == 0) {
             changeAccount = true;
             login.setText("Change Account");
+            mGoogleApiClient.connect();
         } else {
-            mGoogleApiClient.disconnect();
             showDialogLogin = true;
+            if(mGoogleApiClient.isConnected()) {
+                changeAccount = true;
+                showDialogLogin = false;
+                mGoogleApiClient.clearDefaultAccountAndReconnect();
+            }
         }
-        mGoogleApiClient.connect();
     }
 
     public void setChangeAccount(boolean changeAccount) {
