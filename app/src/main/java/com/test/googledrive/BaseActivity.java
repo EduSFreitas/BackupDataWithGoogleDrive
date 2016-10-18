@@ -58,7 +58,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     private boolean showDialogLogin = false;
     private boolean changeAccount = false;
     private SettingManager settingManager;
-    private boolean backup = false;
+    private boolean backup;
     private boolean backupSetting = false;
     private static final String MINE_TYPE = "text/plain";
 
@@ -66,6 +66,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         changeAccount = false;
+        backup = false;
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Drive.API)
@@ -351,8 +352,9 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                         .setTitle(StringUtils.KEY_BACKUP)
                         .setMimeType(MINE_TYPE)
                         .setStarred(true).build();
-                // create a file in root folder
-                Drive.DriveApi.getRootFolder(mGoogleApiClient)
+                // getAppFolder để cho vào thư mục ẩn, để app mình dùng được, người dùng ko thấy và app khác ko truy cập được
+                // khác với getRootFolder
+                Drive.DriveApi.getAppFolder(mGoogleApiClient)
                         .createFile(mGoogleApiClient, changeSet, driveContents)
                         .setResultCallback(fileCallback);
             }
