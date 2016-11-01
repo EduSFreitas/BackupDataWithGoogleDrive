@@ -99,22 +99,20 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     }
 
 
-
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         BaseApp.getInstance().setLogin(true);
-        Log.d(TAG,"changeAccount == "+changeAccount);
+        Log.d(TAG, "changeAccount == " + changeAccount);
         if (showDialogLogin) {
             changeAccount = true;
             showDialogLogin = false;
             mGoogleApiClient.clearDefaultAccountAndReconnect();
         } else {
             Toast.makeText(getApplicationContext(), "Đã kết nối !", Toast.LENGTH_LONG).show();
-            if(isRestore()) {
+            if (isRestore()) {
                 searchFile();
-            }
-            else if(backupSetting) {
-                Log.d(TAG,"vao cho backupsetting nay roi");
+            } else if (backupSetting) {
+                Log.d(TAG, "vao cho backupsetting nay roi");
                 backupData();
             }
         }
@@ -142,40 +140,37 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                             if (isRestore()) {
                                 changeAccount = false;
                                 file.open(mGoogleApiClient, DriveFile.MODE_READ_ONLY, null).setResultCallback(contentsOpenedCallback);
-                            }
-                            else {
+                            } else {
                                 return;
                             }
                         } else {
                             Log.d(TAG, "chua co du lieu nhe");
                             BaseApp.getInstance().setFirstUseApp(1);
-                            if(isBackup()) {
+                            if (isBackup()) {
                                 createFile();
                             }
                         }
                     } else {
-                        Log.d(TAG,result.getStatus()+"");
+                        Log.d(TAG, result.getStatus() + "");
                     }
                 }
             };
 
     public void backupData() {
         try {
-            if(isBackup()) {
-                Log.d(TAG,"backup bang true");
+            if (isBackup()) {
+                Log.d(TAG, "backup bang true");
                 backup = false;
                 Query query = new Query.Builder()
                         .addFilter(Filters.eq(SearchableField.TITLE, StringUtils.KEY_BACKUP))
                         .build();
                 Drive.DriveApi.query(mGoogleApiClient, query)
                         .setResultCallback(metadataCallbackBackup);
+            } else {
+                Log.d(TAG, "backup bang false");
             }
-            else {
-                Log.d(TAG,"backup bang false");
-            }
-        }
-        catch (Exception e) {
-            Log.e(TAG,"errorMsg "+e.getMessage());
+        } catch (Exception e) {
+            Log.e(TAG, "errorMsg " + e.getMessage());
         }
     }
 
@@ -191,18 +186,18 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                             DriveFile file = Drive.DriveApi.getFile(mGoogleApiClient, result.getMetadataBuffer().get(0).getDriveId());
                             backupData(file);
                         } else {
-                            if(isBackup()) {
+                            if (isBackup()) {
                                 createFile();
                             }
                         }
                     } else {
-                        Log.d(TAG,result.getStatus()+"");
+                        Log.d(TAG, result.getStatus() + "");
                     }
                 }
             };
 
     private void backupData(DriveFile file) {
-        if(file != null) {
+        if (file != null) {
             file.open(mGoogleApiClient, DriveFile.MODE_WRITE_ONLY, null).setResultCallback(new ResultCallback<DriveApi.DriveContentsResult>() {
                 @Override
                 public void onResult(@NonNull DriveApi.DriveContentsResult result) {
@@ -230,7 +225,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                         driveContents.commit(mGoogleApiClient, changeSet).setResultCallback(new ResultCallback<Status>() {
                             @Override
                             public void onResult(@NonNull Status status) {
-                                Toast.makeText(getApplicationContext(),"da backup !",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(), "da backup !", Toast.LENGTH_SHORT).show();
                             }
                         });
                     } catch (IOException e) {
@@ -238,9 +233,8 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
                     }
                 }
             });
-        }
-        else {
-            Log.d("vaoday","file == null");
+        } else {
+            Log.d("vaoday", "file == null");
             return;
         }
     }
@@ -273,16 +267,15 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
 //            return false;
 //        }
         String data = GlobalUtils.getInstance(this).setPreferenceToJsonObject().toString();
-        if(!data.equalsIgnoreCase(BaseApp.getInstance().getDataSetting())) {
+        if (!data.equalsIgnoreCase(BaseApp.getInstance().getDataSetting())) {
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
     private boolean isRestore() {
-        Log.d(TAG, "isRestore: changeAccount "+changeAccount+ " "+BaseApp.getInstance().getFirstUseApp());
+        Log.d(TAG, "isRestore: changeAccount " + changeAccount + " " + BaseApp.getInstance().getFirstUseApp());
         if (changeAccount || BaseApp.getInstance().getFirstUseApp() == 0) {
             return true;
         } else {
@@ -297,7 +290,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
         builder.setPositiveButton("Có", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 try {
-                    String dataDecrypt = AESCrypt.decrypt(GlobalUtils.password,dataRestore);
+                    String dataDecrypt = AESCrypt.decrypt(GlobalUtils.password, dataRestore);
                     BaseApp.getInstance().setDataSetting(dataDecrypt);
                     GlobalUtils.getInstance(BaseActivity.this).restore(dataRestore);
                     Toast.makeText(getApplicationContext(), "Đã Restore Setting rồi nhé !", Toast.LENGTH_LONG).show();
@@ -454,7 +447,7 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
             mGoogleApiClient.connect();
         } else {
             showDialogLogin = true;
-            if(mGoogleApiClient.isConnected()) {
+            if (mGoogleApiClient.isConnected()) {
                 changeAccount = true;
                 showDialogLogin = false;
                 mGoogleApiClient.clearDefaultAccountAndReconnect();
