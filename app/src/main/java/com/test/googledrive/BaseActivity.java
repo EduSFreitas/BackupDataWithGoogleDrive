@@ -1,12 +1,15 @@
 package com.test.googledrive;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -27,6 +30,8 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.query.Filters;
 import com.google.android.gms.drive.query.Query;
 import com.google.android.gms.drive.query.SearchableField;
+import com.google.android.gms.plus.Plus;
+import com.google.android.gms.plus.model.people.Person;
 import com.test.googledrive.Config.AESCrypt;
 import com.test.googledrive.Config.BaseApp;
 import com.test.googledrive.Config.StringUtils;
@@ -68,10 +73,14 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
         changeAccount = false;
         backup = false;
         if (mGoogleApiClient == null) {
+            // .addScope(Plus.SCOPE_PLUS_PROFILE) để lấy profile, trên google developer console enable Google + api, mới
+            // lấy được đầy đủ thông tin
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Drive.API)
                     .addScope(Drive.SCOPE_FILE)
                     .addScope(Drive.SCOPE_APPFOLDER)
+                    .addScope(Plus.SCOPE_PLUS_PROFILE)
+                    .addApi(Plus.API)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
                     .build();
@@ -103,6 +112,19 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     public void onConnected(@Nullable Bundle bundle) {
         BaseApp.getInstance().setLogin(true);
         Log.d(TAG, "changeAccount == " + changeAccount);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        String accountName = Plus.AccountApi.getAccountName(mGoogleApiClient);
+        Toast.makeText(this,"email "+accountName,Toast.LENGTH_LONG).show();
+        Log.d(TAG, "onConnected: tai khoan "+accountName);
+        if(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
+            Person person = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+            Log.d(TAG, "Id: " + person.getId());
+        }
+        else {
+            Log.d(TAG, "onConnected: == null");
+        }
         if (showDialogLogin) {
             changeAccount = true;
             showDialogLogin = false;
@@ -458,4 +480,13 @@ public abstract class BaseActivity extends AppCompatActivity implements GoogleAp
     public void setChangeAccount(boolean changeAccount) {
         this.changeAccount = changeAccount;
     }
+
+    public void logoutGoogle() {
+        if (mGoogleApiClient != null) {
+            Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+            Plus.AccountApi.revokeAccessAndDisconnect(mGoogleApiClient);
+            mGoogleApiClient.disconnect();
+        }
+    }
+
 }
